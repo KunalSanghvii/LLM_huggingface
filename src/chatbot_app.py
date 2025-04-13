@@ -13,7 +13,7 @@ if user_input:
     with st.spinner("Thinking.."):
         response = get_bot_response(user_input)
         st.session_state.chat_history.append(("You", user_input))
-        st.session_state.chat_history.append(("Bot", user_input))
+        st.session_state.chat_history.append(("Bot", response))  # fixed here
 
 for sender, msg in st.session_state.chat_history:
     if sender == "You":

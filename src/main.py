@@ -1,16 +1,16 @@
 import os
-from langchain.llms import HuggingFaceHub
-from huggingface_hub import login
-from langchain import PromptTemplate, LLMChain
+from dotenv import load_dotenv
+from pydantic import BaseModel
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.prompts import PromptTemplate
+from langchain.chains import LLMChain
 
 
-os.environ["HUGGINGFACEHUB_API_TOKEN"] = "key"
-login(os.getenv("HUGGINGFACEHUB_API_TOKEN"))
 
-llm = HuggingFaceHub(
-    repo_id="mistralai/Mistral-7B-Instruct-v0.1",
-    model_kwargs={"temperature": 0.5, "max_new_tokens": 200}
-)
+load_dotenv()
+
+llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash")
+
 
 # STEP 4: Define a simple prompt template for customer support
 prompt = PromptTemplate(
@@ -24,7 +24,8 @@ Answer:"""
 )
 
 # STEP 5: Connect the model and prompt in a LangChain LLMChain
-chain = LLMChain(llm=llm, prompt=prompt)
+chain = prompt | llm
 
 def get_bot_response(question: str) -> str:
-    return chain.run(question=question)
+    response = chain.invoke({"question": question})
+    return response.content if hasattr(response, "content") else str(response)
